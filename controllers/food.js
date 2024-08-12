@@ -31,8 +31,8 @@ router.get('/', async (req, res) => {
 // Index End
 
 // New
-router.get('/new', async (req,res) => {
-    res.render('foods/new.ejs')
+router.get('/new', async (req , res) => {
+    res.render('foods/new')
 })
 // New End
 
@@ -51,8 +51,10 @@ router.post('/add', async (req, res) => {
     }
     userFromDb.pantry.push(newFood);
     await userFromDb.save();
+    res.redirect('/foods');
     } catch (error) {
-        
+        console.error('Error adding new food item:', err);
+    res.redirect('/');
     }
 })
 // Create End
@@ -60,8 +62,39 @@ router.post('/add', async (req, res) => {
 
 // Show	‘/users/:userId/foods/:itemId’	GET
 // Edit	‘/users/:userId/foods/:itemId/edit’	GET
+
+router.get('/:itemId/edit', async (req, res) => {
+    try {
+      // Ensure the user is authenticated
+      if (!req.session || !req.session.user) {
+        return res.redirect('/login');
+      }
+  
+      const user = req.session.user;
+      const itemId = req.params.itemId;
+      const userFromDb = await User.findById(user._id).exec();
+  
+      if (!userFromDb) {
+        return res.redirect('/login');
+      }
+      const foodItem = userFromDb.pantry.id(itemId);
+  
+      if (!foodItem) {
+        return res.redirect('/foods');
+      }
+
+      res.locals.foodItem = foodItem;
+
+      res.render('foods/edit');
+    } catch (err) {
+      console.error('Error fetching food item for editing:', err);
+      res.redirect('/');
+    }
+  });
+
+// Edit End
 // Update	‘/users/:userId/foods/:itemId’	PUT
-// Delete	‘/users/:userId/foods/:itemId’	DELETE
+// Delete 
 router.delete('/:itemId', async (req, res) => {
     try {
         if (!req.session || !req.session.user) {
@@ -82,7 +115,7 @@ router.delete('/:itemId', async (req, res) => {
     res.redirect('/');
     }
 })
-// 
+// Delete End
 
 
 module.exports = router;

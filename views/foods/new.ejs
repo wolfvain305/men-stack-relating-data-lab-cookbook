@@ -6,13 +6,14 @@
     <title>Add Food To The Pantry!!</title>
 </head>
 <body>
+    <%- include('../partials/_navbar.ejs') %>
     <h1>What Food Item Is Being Added?</h1>
-    <form action="/foods/create" method="POST">
+    <form action="/foods" method="POST">
         <label for="name">Food Name:</label>
         <input type="text" id="name" name="name" required><br>    
         <button type="submit">Add Food Item</button>
       </form>
-      <a href="/foods">Back to Pantry</a>
+      <a href="/foods/">Back to Pantry</a>
     </body>
     </html>
 </body>
