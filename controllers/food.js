@@ -62,7 +62,26 @@ router.post('/add', async (req, res) => {
 // Edit	‘/users/:userId/foods/:itemId/edit’	GET
 // Update	‘/users/:userId/foods/:itemId’	PUT
 // Delete	‘/users/:userId/foods/:itemId’	DELETE
-router.delete
+router.delete('/:itemId', async (req, res) => {
+    try {
+        if (!req.session || !req.session.user) {
+            return res.redirect('/login');
+        }
+        const user = req.session.user;
+        const itemId = req.params.itemId;
+        const userFromDb = await User.findById(user._id).exec();
+    
+        if (!userFromDb) {
+          return res.redirect('/login'); 
+        }
+        userFromDb.pantry.id(itemId).remove();
+        await userFromDb.save();
+        res.redirect('/foods');
+    } catch (error) {
+        console.error('Error deleting food item:', err);
+    res.redirect('/');
+    }
+})
 // 
 
 
