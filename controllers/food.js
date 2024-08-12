@@ -94,6 +94,39 @@ router.get('/:itemId/edit', async (req, res) => {
 
 // Edit End
 // Update	‘/users/:userId/foods/:itemId’	PUT
+
+router.put('/:itemId', async (req, res) => {
+    try {
+      if (!req.session || !req.session.user) {
+        return res.redirect('/login'); 
+      }
+  
+      const user = req.session.user
+      const itemId = req.params.itemId
+      const updatedData = req.body;
+      const userFromDb = await User.findById(user._id).exec()
+  
+      if (!userFromDb) {
+        return res.redirect('/login')
+      }
+      const foodItem = userFromDb.pantry.id(itemId)
+  
+      if (!foodItem) {
+        return res.redirect('/foods')
+      }
+  
+      foodItem.name = updatedData.name
+  
+      await userFromDb.save();
+      res.redirect('/foods');
+    } catch (err) {
+      console.error('Error updating food item:', err)
+      res.redirect('/');
+    }
+  });
+
+//Update End
+
 // Delete 
 router.delete('/:itemId', async (req, res) => {
     try {
@@ -102,12 +135,12 @@ router.delete('/:itemId', async (req, res) => {
         }
         const user = req.session.user;
         const itemId = req.params.itemId;
-        const userFromDb = await User.findById(user._id).exec();
+        const userFromDb = await User.findById(user._id).exec()
     
         if (!userFromDb) {
-          return res.redirect('/login'); 
+          return res.redirect('/login')
         }
-        userFromDb.pantry.id(itemId).remove();
+        userFromDb.pantry.id(itemId).remove()
         await userFromDb.save();
         res.redirect('/foods');
     } catch (error) {
